@@ -10,7 +10,36 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
 
 
-public class pigdummyudf extends EvalFunc<Long> {
+/* 1) Prepare the input file
+ * $ vi input.txt
+ * a 1 2
+ * b 2 3
+ * c 10 3
+ * :wq
+ * 
+ * 2) Start pig in local mode
+ * $ pig -x local
+ * 
+ * 3) load the input file and show it
+ * pig> a = LOAD 'input.txt' USING PigStorage(' ') AS (s:chararray, a:int, b:int);
+ * pig> DUMP a;
+(a,1,2)
+(b,2,3)
+(c,10,3)
+* 
+* 4) register the JAR file
+* pig> REGISTER 'git/pigudf/pigudf/target/pigudf-0.0.1-SNAPSHOT.jar';
+* 
+* 5) apply the UDF to the relation
+* pig> b = FOREACH a GENERATE s, com.acme.pig.MyExp(a,b);
+* 
+* 6) show results
+* DUMP b;
+(a,1)
+(b,8)
+(c,1000)
+ */
+public class MyExp extends EvalFunc<Long> {
 	public Long exec(Tuple input) throws IOException {
 		try {
 			/*
